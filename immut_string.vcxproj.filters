@@ -24,12 +24,18 @@
     <ClCompile Include="string_builder.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="string_view.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="string.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="string_builder.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="string_view.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

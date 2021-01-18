@@ -33,7 +33,7 @@ namespace nativa
 	{
 		char* mutable_raw;
 		string res = string_internals::alloc(m_buffer.size(), mutable_raw);
-		string_util::c_str_copy(mutable_raw, &m_buffer[0], &m_buffer[0] + m_buffer.size());
+		string_view(&m_buffer[0], &m_buffer[0] + m_buffer.size()).copy_to(mutable_raw);
 		return std::move(res);
 	}
 

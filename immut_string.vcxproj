@@ -142,10 +142,12 @@
     <ClCompile Include="string.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="string_builder.cpp" />
+    <ClCompile Include="string_view.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="string.h" />
     <ClInclude Include="string_builder.h" />
+    <ClInclude Include="string_view.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
