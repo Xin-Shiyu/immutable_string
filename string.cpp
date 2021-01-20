@@ -1,5 +1,5 @@
 #include <cassert>
-#include "string.h" // implementation of string_view::clone relies on this
+#include "string.h"
 
 #pragma region String Utils
 
@@ -39,6 +39,11 @@ namespace nativa
 		return this->slice(begin, length).clone();
 	}
 
+	string_view string::view() const
+	{
+		return string_view(m_begin, m_end);
+	}
+
 	const char* string::c_str() const
 	{
 		return this->m_begin;
@@ -63,7 +68,7 @@ namespace nativa
 			*m_counter += 1;
 		}
 	}
-
+	
 	string::string(string&& str) noexcept
 		: m_counter(str.m_counter), string_view(str.m_begin, str.m_end)
 	{
@@ -81,5 +86,52 @@ namespace nativa
 				string_internals::free(std::move(*this));
 			}
 		}
+	}
+
+	string& string::operator=(const string& str) noexcept
+	{
+		if (&str == this) return *this;
+
+		if (str.m_begin == m_begin && str.m_end == m_end) return *this;
+		// pay attention to the ref semantics
+		// if two references refer to the same thing
+		// ref count should not change
+		// also, the string object at right is still valid
+
+		this->~string(); // but the old is not so it should look as if it has destructed
+		m_begin = str.m_begin;
+		m_end = str.m_end;
+		m_counter = str.m_counter;
+
+		*m_counter += 1;
+
+		return *this;
+	}
+
+
+	string& string::operator=(string&& str) noexcept
+	{
+		if (&str == this) return *this;
+
+		// pay attention to this corner case:
+		// when two string own the same instance
+		// if one is moved to another
+		// the ref count goes down instead of staying unchanged
+		// (well in most cases it *is* unchanged)
+		if (str.m_begin == m_begin && str.m_end == m_end)
+		{
+			str.~string(); // actually you can destruct whichever of the two objects
+			return *this;
+		}
+
+		// normal case
+		this->~string();
+		m_begin = str.m_begin;
+		m_end = str.m_end;
+		m_counter = str.m_counter;
+
+		str.m_counter = nullptr; // the moved-from object has no ownership anymore
+
+		return *this;
 	}
 }

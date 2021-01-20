@@ -38,5 +38,11 @@
     <ClInclude Include="string_view.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="string_convert.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="format.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

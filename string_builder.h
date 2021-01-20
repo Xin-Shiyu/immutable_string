@@ -19,6 +19,10 @@ namespace nativa
 		void shrink_to_fit();
 
 		void resize(size_t size);
+		
+		std::vector<char>::iterator begin();
+
+		std::vector<char>::iterator end();
 
 		string to_string();
 

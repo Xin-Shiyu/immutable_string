@@ -22,17 +22,23 @@ namespace nativa
 		friend struct string_internals;
 
 	public:
+
 		// Create from string literals.
 		template <size_t N>
 		constexpr string(const char(&c_str)[N])
 			: m_counter(nullptr), string_view(c_str)
 		{
 		}
-
+		
+		constexpr string()
+			: m_counter(nullptr), string_view()
+		{
+		}
+		
 		// Copy ctor.
 		// Increases ref count
 		string(const string& str) noexcept;
-
+		
 		// Move ctor.
 		// Invalidates the old one
 		// Suppressing ref count change
@@ -41,6 +47,10 @@ namespace nativa
 		// Dtor.
 		// Decreases ref count if valid
 		~string() noexcept;
+
+		string& operator=(const string& str) noexcept;
+
+		string& operator=(string&& str) noexcept;
 
 #pragma region Public Static Methods
 		/// <summary>
@@ -64,6 +74,8 @@ namespace nativa
 		/// <param name="length">The length of the substring</param>
 		/// <returns>The substring</returns>
 		nativa::string substring(size_t begin, size_t length) const;
+
+		string_view view() const;
 
 		const char* c_str() const;
 

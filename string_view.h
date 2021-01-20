@@ -3,7 +3,6 @@
 #define NATIVA_STRING_VIEW
 
 #include <utility>
-
 namespace nativa
 {
 	class string;
@@ -27,6 +26,11 @@ namespace nativa
 		template <size_t N>
 		constexpr string_view(const char(&c_str)[N])
 			: m_begin(c_str), m_end(c_str + N - 1) // - 1 for the '\0'
+		{
+		}
+
+		constexpr string_view()
+			: m_begin(""), m_end("" + 1)
 		{
 		}
 
@@ -76,7 +80,7 @@ namespace nativa
 		/// <param name="delim">The delimiter char</param>
 		/// <param name="output">The insert iterator of the collection into which the result goes</param>
 		template <typename InsertIt>
-		inline void split(char delim, InsertIt output) const;
+		void split(char delim, InsertIt output) const;
 
 		/// <summary>
 		/// Creates a string owning a clone of the view
@@ -93,6 +97,19 @@ namespace nativa
 		const char* end() const;
 
 		size_t size() const;
+
+		bool operator<(const string_view& right) const;
+
+		bool operator<=(const string_view& right) const;
+
+		bool operator==(const string_view& right) const;
+
+		bool operator>=(const string_view& right) const;
+
+		bool operator>(const string_view& right) const;
+
+		nativa::string_view operator[](const std::pair<size_t, size_t>& range) const;
+
 	protected:
 		const char* m_begin;
 		const char* m_end;
@@ -158,7 +175,6 @@ namespace nativa
 		}
 	}
 
-
 	template <typename InsertIt>
 	inline void string_view::split_clone(const string_view& delim, InsertIt output) const
 	{
@@ -170,6 +186,24 @@ namespace nativa
 	{
 		split(delim, cloned<InsertIt, string_view>(output));
 	}
+}
+
+namespace std
+{
+	template <>
+	struct hash<nativa::string_view>
+	{
+		size_t operator()(const nativa::string_view& sv) const
+		{
+			size_t hash = 0;
+			for (char c : sv)
+			{
+				hash *= 31;
+				hash += c;
+			}
+			return hash;
+		}
+	};
 }
 
 nativa::string_view operator""_ns(const char* c_str, size_t len);

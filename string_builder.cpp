@@ -29,6 +29,16 @@ namespace nativa
 		m_buffer.resize(size);
 	}
 
+	std::vector<char>::iterator string_builder::begin()
+	{
+		return m_buffer.begin();
+	}
+
+	std::vector<char>::iterator string_builder::end()
+	{
+		return m_buffer.end();
+	}
+
 	string string_builder::to_string()
 	{
 		char* mutable_raw;

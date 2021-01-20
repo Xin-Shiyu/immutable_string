@@ -1,6 +1,6 @@
-#include "string_view.h"
-#include "string.h"
 #include <cassert>
+#include "string_view.h"
+#include "string.h"  // implementation of string_view::clone relies on this
 
 namespace nativa
 {
@@ -25,14 +25,13 @@ namespace nativa
 				return 1;
 			}
 
-			char l = *lp;
-			char r = *rp;
+			const char l = *lp;
+			const char r = *rp;
 			if (l < r) return -1;
 			else if (l > r) return 1;
-			else if (l == '\0') return 0;
 
-			++l;
-			++r;
+			++lp;
+			++rp;
 		}
 	}
 
@@ -48,30 +47,18 @@ namespace nativa
 		return find_last(target, m_begin + before) - m_begin;
 	}
 
-	ptrdiff_t string_view::index_of(const char target, size_t from) const
+	ptrdiff_t string_view::index_of(const char target, size_t since) const
 	{
-		assert(from < size());
-
-		auto res = find(target, m_begin + from);
-		if (res != m_end)
-		{
-			return res - m_begin;
-		}
-
-		return -1;
+		auto res = find(target, m_begin + since);
+		if (res == m_end) return -1;
+		return res - m_begin;
 	}
 
-	ptrdiff_t string_view::index_of(const string_view& target, size_t from) const
+	ptrdiff_t string_view::index_of(const string_view& target, size_t since) const
 	{
-		assert(from < size());
-
-		auto res = find(target, m_begin + from);
-		if (res != m_end)
-		{
-			return res - m_begin;
-		}
-
-		return -1;
+		auto res = find(target, m_begin + since);
+		if (res == m_end) return -1;
+		return res - m_begin;
 	}
 
 	nativa::string string_view::clone() const
@@ -117,10 +104,42 @@ namespace nativa
 		return m_end - m_begin;
 	}
 
-	string_view::string_view(const char* begin, const char* end) noexcept
+	bool string_view::operator<(const string_view& right) const
 	{
-		m_begin = begin;
-		m_end = end;
+		return this->compare_to(right) < 0;
+	}
+
+	bool string_view::operator<=(const string_view& right) const
+	{
+		return *this < right || *this == right;
+	}
+
+	bool string_view::operator==(const string_view& right) const
+	{
+		return this->compare_to(right) == 0;
+	}
+
+	bool string_view::operator>=(const string_view& right) const
+	{
+		return *this > right || *this == right;
+	}
+
+	bool string_view::operator>(const string_view& right) const
+	{
+		return this->compare_to(right) > 0;
+	}
+
+	nativa::string_view string_view::operator[](const std::pair<size_t, size_t>& range) const
+	{
+		if (range.first == range.second) return "";
+		assert(range.first < this->size());
+		assert(range.second <= this->size());
+		return string_view(m_begin + range.first, m_begin + range.second);
+	}
+
+	string_view::string_view(const char* begin, const char* end) noexcept
+		: m_begin(begin), m_end(end)
+	{
 	}
 
 	const char* string_view::find_last(char target, const char* before) const
@@ -129,17 +148,17 @@ namespace nativa
 		return before;
 	}
 
-	const char* string_view::find(const char target, const char* from) const
+	const char* string_view::find(const char target, const char* since) const
 	{
-		while (from != m_end && target != *from) ++from;
-		return from;
+		while (since != m_end && target != *since) ++since;
+		return since;
 	}
 
-	const char* string_view::find(const string_view& target, const char* from) const
+	const char* string_view::find(const string_view& target, const char* since) const
 	{
 		// TO-DO: optimize
 		auto end = m_end - target.size();
-		for (auto m_it = from; m_it <= end; ++m_it)
+		for (auto m_it = since; m_it <= end; ++m_it)
 		{
 			auto w_it = m_it;
 			auto t_it = target.m_begin;
