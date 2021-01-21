@@ -79,6 +79,8 @@ namespace nativa
 
 		const char* c_str() const;
 
+		operator const char*() const;
+
 		ref_counter_t ref_count() const;
 
 	private:

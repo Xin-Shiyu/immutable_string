@@ -49,6 +49,11 @@ namespace nativa
 		return this->m_begin;
 	}
 
+	string::operator const char*() const
+	{
+		return c_str();
+	}
+
 	ref_counter_t string::ref_count() const
 	{
 		if (m_counter == nullptr) return 0;
