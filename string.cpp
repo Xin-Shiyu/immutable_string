@@ -123,9 +123,10 @@ namespace nativa
 		// if one is moved to another
 		// the ref count goes down instead of staying unchanged
 		// (well in most cases it *is* unchanged)
-		if (str.m_begin == m_begin && str.m_end == m_end)
+		if (this->m_counter != nullptr && str.m_begin == m_begin && str.m_end == m_end)
 		{
-			str.~string(); // actually you can destruct whichever of the two objects
+			str.~string(); // decrease ref count
+			str.m_counter = nullptr; // mark the string moved from as invalid
 			return *this;
 		}
 
