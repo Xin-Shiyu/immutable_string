@@ -9,12 +9,37 @@
 
 namespace nativa
 {
+#pragma region Parse
+
+	template <typename T>
+	T parse_unsigned_integral(const nativa::string_view& str)
+	{
+		T res = 0;
+		for (auto c : str)
+		{
+			assert('0' <= c && c <= '9');
+			res *= 10;
+			res += c - '0';
+		}
+		return res;
+	}
+
+	template <typename T>
+	T parse_signed_integral(const nativa::string_view& str)
+	{
+		using Unsigned = typename std::make_unsigned<T>::type;
+		return str.begin()[0] == '-'
+			? -static_cast<T>(parse_unsigned_integral<Unsigned>(str[{1, str.size()}]))
+			: parse_unsigned_integral<Unsigned>(str);
+	}
+#pragma endregion
+
 	nativa::string to_string(const string& value)
 	{
 		return value;
 	}
 
-	const char* const number_map = "0123456789ABCDEF";
+	const char* const number_map = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 	template <typename T>
 	nativa::string unsigned_integral_to_string_impl(T value)
@@ -36,8 +61,10 @@ namespace nativa
 	}
 
 	template <typename T>
-	nativa::string signed_integral_to_string_impl(T value)
+	nativa::string signed_integral_to_string_impl(T value, int base)
 	{
+		assert(base <= 36);
+
 		string_builder builder;
 
 		if (value == 0) return "0";
@@ -46,16 +73,16 @@ namespace nativa
 		{
 			while (value > 0)
 			{
-				builder.append(number_map[value % 10]);
-				value /= 10;
+				builder.append(number_map[value % base]);
+				value /= base;
 			}
 		}
 		else
 		{
 			while (value < 0)
 			{
-				builder.append(number_map[-(value % 10)]);
-				value /= 10;
+				builder.append(number_map[-(value % base)]);
+				value /= base;
 			}
 			builder.append('-');
 		}
@@ -72,7 +99,12 @@ namespace nativa
 
 	nativa::string to_string(int64_t value)
 	{
-		return signed_integral_to_string_impl(value);
+		return signed_integral_to_string_impl(value, 10);
+	}
+
+	nativa::string to_string(int64_t value, const nativa::string_view& style)
+	{
+		return signed_integral_to_string_impl(value, nativa::parse_signed_integral<int>(style));
 	}
 
 	nativa::string to_string(uint32_t value)
@@ -82,7 +114,12 @@ namespace nativa
 
 	nativa::string to_string(int32_t value)
 	{
-		return signed_integral_to_string_impl(value);
+		return signed_integral_to_string_impl(value, 10);
+	}
+
+	nativa::string to_string(int32_t value, const nativa::string_view& style)
+	{
+		return signed_integral_to_string_impl(value, nativa::parse_signed_integral<int>(style));
 	}
 
 	nativa::string to_string(bool value)
@@ -98,25 +135,9 @@ namespace nativa
 	}
 
 	template <typename T>
-	nativa::string to_string(T value, const nativa::string_view& style)
+	nativa::string to_string(const T& value, const nativa::string_view& style)
 	{
 		return to_string(value); // fallback impl
-	}
-
-	template <typename T>
-	T parse(const nativa::string_view& str);
-
-	template <>
-	size_t parse(const nativa::string_view& str)
-	{
-		size_t res = 0;
-		for (auto c : str)
-		{
-			assert('0' <= c && c <= '9');
-			res *= 10;
-			res += c - '0';
-		}
-		return res;
 	}
 }
 

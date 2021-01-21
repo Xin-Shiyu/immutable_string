@@ -92,7 +92,7 @@ namespace nativa
 					slice = slice[{0, colon}];
 				}
 
-				size_t target_index = nativa::parse<size_t>(slice[{1, slice.size() - 1}]);
+				size_t target_index = nativa::parse_unsigned_integral<size_t>(slice[{1, slice.size() - 1}]);
 				if (target_index >= guides.size())
 				{
 					guides.resize(target_index + 1);
