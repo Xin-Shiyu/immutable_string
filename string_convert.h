@@ -46,7 +46,7 @@ namespace nativa
 	{
 		assert(2 <= base && base <= 36);
 
-		fixed_string_builder<64> builder;
+		fixed_string_builder<128> builder;
 		bool neg = false;
 
 		if (value == 0) return "0";
@@ -67,7 +67,7 @@ namespace nativa
 	{
 		assert(2 <= base && base <= 36);
 
-		fixed_string_builder<64> builder;
+		fixed_string_builder<128> builder;
 
 		if (value == 0) return "0";
 
