@@ -87,11 +87,11 @@ namespace nativa
 
 				if (colon != -1)
 				{
-					style = slice[{colon, slice.size()}];
+					style = slice[{colon + 1, slice.size() - 1}];
 					slice = slice[{0, colon}];
 				}
 
-				size_t target_index = nativa::parse<size_t>(slice.slice(1, slice.size() - 1));
+				size_t target_index = nativa::parse<size_t>(slice[{1, slice.size()}]);
 				if (target_index >= guides.size())
 				{
 					guides.resize(target_index + 1);

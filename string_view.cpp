@@ -12,7 +12,7 @@ namespace nativa
 		{
 			if (lp == this->m_end)
 			{
-				if (rp == this->m_end)
+				if (rp == another.m_end)
 				{
 					return 0;
 				}
