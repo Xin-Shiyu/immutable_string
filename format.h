@@ -16,6 +16,8 @@ namespace nativa
 	{
 		format_internal context;
 
+		context.guides.resize(format_internal::count_args(args...));
+
 		context.parse(fmt);
 
 		context.fill(0, args...);
@@ -27,6 +29,17 @@ namespace nativa
 	{
 		template <typename... Args>
 		friend nativa::string format(const string_view& fmt, Args... args);
+
+		template <typename First, typename... Args>
+		static size_t count_args(First, Args... args)
+		{
+			return count_args(args...) + 1;
+		}
+
+		static size_t count_args()
+		{
+			return 0;
+		}
 
 		struct format_guide
 		{
@@ -93,12 +106,10 @@ namespace nativa
 				}
 
 				size_t target_index = nativa::parse_unsigned_integral<size_t>(slice[{1, slice.size() - 1}]);
-				if (target_index >= guides.size())
+				if (target_index < guides.size())
 				{
-					guides.resize(target_index + 1);
+					guides[target_index].emplace_back(res.size() - 1, style);
 				}
-
-				guides[target_index].emplace_back(res.size() - 1, style);
 			}
 		}
 
