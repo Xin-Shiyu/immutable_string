@@ -2,7 +2,7 @@
 #ifndef NATIVA_FORMAT
 #define NATIVA_FORMAT
 
-#include <deque>
+#include <vector>
 #include <unordered_map>
 #include "string.h"
 #include "string_convert.h"
@@ -30,18 +30,18 @@ namespace nativa
 
 		struct format_guide
 		{
-			nativa::string_view* target;
+			size_t target;
 			nativa::string_view style;
 
-			format_guide(nativa::string_view* target, nativa::string_view style)
+			format_guide(size_t target, nativa::string_view style)
 				: target(target), style(style)
 			{
 			}
 		};
 
-		std::deque<nativa::string> temp; // to own the temporary strings
-		std::deque<nativa::string_view> res;
-		std::deque<std::deque<format_guide>> guides;
+		std::vector<nativa::string> temp; // to own the temporary strings
+		std::vector<nativa::string_view> res;
+		std::vector<std::vector<format_guide>> guides;
 
 		void parse(const string_view& fmt)
 		{
@@ -59,18 +59,18 @@ namespace nativa
 				{
 					if (end == 0) // the string has no format requirement
 					{
-						res.push_back(fmt);
+						res.emplace_back(fmt);
 					}
 					else if (end != size) // this is the last normal part
 					{
-						res.push_back(fmt[{end, size}]);
+						res.emplace_back(fmt[{end, size}]);
 					}
 					break;
 				}
 
 				if (end != begin) // create a normal part
 				{
-					res.push_back(fmt[{end, begin}]);
+					res.emplace_back(fmt[{end, begin}]);
 				}
 
 				end = fmt.index_of('}', begin + 1);
@@ -80,7 +80,7 @@ namespace nativa
 				end += 1;
 
 				auto slice = fmt[{begin, end}];
-				res.push_back(slice);
+				res.emplace_back(slice);
 				
 				auto style = ""_ns;
 				ptrdiff_t colon = slice.index_of(':');
@@ -97,9 +97,8 @@ namespace nativa
 				{
 					guides.resize(target_index + 1);
 				}
-				auto shit = res.back();
-				
-				guides[target_index].emplace_back(&res.back(), style);
+
+				guides[target_index].emplace_back(res.size() - 1, style);
 			}
 		}
 
@@ -108,7 +107,7 @@ namespace nativa
 		{
 			std::unordered_map<nativa::string_view, nativa::string_view>
 				cache;
-			for (format_guide guide : guides[index])
+			for (const format_guide& guide : guides[index])
 			{
 				auto it = cache.find(guide.style);
 				if (it == cache.end())
@@ -120,11 +119,11 @@ namespace nativa
 						: nativa::to_string(arg, guide.style);
 					temp.emplace_back(std::move(str)); // to supress ref count change
 					cache[guide.style] = str;
-					*guide.target = str.view();
+					res[guide.target] = str.view();
 				}
 				else
 				{
-					*guide.target = it->second;
+					res[guide.target] = it->second;
 				}
 			}
 		}
@@ -132,9 +131,9 @@ namespace nativa
 		template <>
 		void fill_one(size_t index, const string_view& arg)
 		{
-			for (format_guide guide : guides[index])
+			for (const format_guide& guide : guides[index])
 			{
-				*guide.target = arg;
+				res[guide.target] = arg;
 			}
 		}
 
@@ -142,9 +141,9 @@ namespace nativa
 		{
 			auto end = arg;
 			while (*end != '\0') ++end;
-			for (format_guide guide : guides[index])
+			for (const format_guide& guide : guides[index])
 			{
-				*guide.target = nativa::string_view(arg, end);
+				res[guide.target] = nativa::string_view(arg, end);
 			}
 		}
 

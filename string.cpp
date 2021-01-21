@@ -6,7 +6,6 @@
 namespace nativa
 {
 #pragma endregion
-
 	string string_internals::alloc(size_t length, char*& mutable_raw)
 	{
 		// The memory looks like:

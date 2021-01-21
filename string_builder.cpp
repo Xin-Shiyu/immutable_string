@@ -2,7 +2,12 @@
 
 namespace nativa
 {
-	string_builder& nativa::string_builder::append(string str)
+	string_builder::string_builder()
+	{
+		m_buffer.reserve(16);
+	}
+
+	string_builder& nativa::string_builder::append(const string_view& str)
 	{
 		str.copy_to(grow(str.size()));
 		return *this;

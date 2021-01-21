@@ -1,6 +1,7 @@
 #include <cassert>
 #include "string_view.h"
 #include "string.h"  // implementation of string_view::clone relies on this
+#include <cstring> // for the native memcpy
 
 namespace nativa
 {
@@ -79,14 +80,7 @@ namespace nativa
 
 	void string_view::copy_to(char* buffer) const
 	{
-		auto it = m_begin;
-		auto dest = buffer;
-		while (it < m_end)
-		{
-			*dest = *it;
-			++it;
-			++dest;
-		}
+		memcpy(buffer, m_begin, size());
 	}
 
 	const char* string_view::begin() const

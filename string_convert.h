@@ -42,17 +42,19 @@ namespace nativa
 	const char* const number_map = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 	template <typename T>
-	nativa::string unsigned_integral_to_string_impl(T value)
+	nativa::string unsigned_integral_to_string_impl(T value, unsigned base)
 	{
-		string_builder builder;
+		assert(2 <= base && base <= 36);
+
+		fixed_string_builder<64> builder;
 		bool neg = false;
 
 		if (value == 0) return "0";
 
 		while (value > 0)
 		{
-			builder.append(number_map[value % 10]);
-			value /= 10;
+			builder.append(number_map[value % base]);
+			value /= base;
 		}
 
 		std::reverse(builder.begin(), builder.end());
@@ -63,9 +65,9 @@ namespace nativa
 	template <typename T>
 	nativa::string signed_integral_to_string_impl(T value, int base)
 	{
-		assert(base <= 36);
+		assert(2 <= base && base <= 36);
 
-		string_builder builder;
+		fixed_string_builder<64> builder;
 
 		if (value == 0) return "0";
 
@@ -94,7 +96,12 @@ namespace nativa
 
 	nativa::string to_string(uint64_t value)
 	{
-		return unsigned_integral_to_string_impl(value);
+		return unsigned_integral_to_string_impl(value, 10);
+	}
+
+	nativa::string to_string(uint64_t value, const nativa::string_view& style)
+	{
+		return unsigned_integral_to_string_impl(value, nativa::parse_unsigned_integral<unsigned>(style));
 	}
 
 	nativa::string to_string(int64_t value)
@@ -109,7 +116,12 @@ namespace nativa
 
 	nativa::string to_string(uint32_t value)
 	{
-		return unsigned_integral_to_string_impl(value);
+		return unsigned_integral_to_string_impl(value, 10);
+	}
+
+	nativa::string to_string(uint32_t value, const nativa::string_view& style)
+	{
+		return unsigned_integral_to_string_impl(value, nativa::parse_unsigned_integral<unsigned>(style));
 	}
 
 	nativa::string to_string(int32_t value)
