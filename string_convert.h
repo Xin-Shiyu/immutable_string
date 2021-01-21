@@ -17,7 +17,7 @@ namespace nativa
 		{
 			assert('0' <= c && c <= '9');
 			res *= 10;
-			res += c - '0';
+			res += static_cast<size_t>(c) - '0';
 		}
 		return res;
 	}
@@ -108,16 +108,17 @@ namespace nativa
 
 			builder.append('.');
 			if (value < 0) value = -value;
-			if (precision > 10) precision = 10;
+			const int max_precision = 100 / base; // I wrote this for no reason
+			if (precision > max_precision) precision = max_precision;
 			int zero_count = 0;
 			for (int i = 0; i < precision; ++i)
 			{
-				value *= 10;
-				size_t digit = static_cast<size_t>(value) % 10;
+				value *= base;
+				size_t digit = static_cast<size_t>(value) % base;
 				if (digit == 0) zero_count += 1;
 				else zero_count = 0;
-				assert(0 < digit && digit < 9);
-				char digit_char = static_cast<char>(digit + '0');
+				assert(0 <= digit && digit <= base);
+				char digit_char = static_cast<char>(number_map[digit]);
 				builder.append(digit_char);
 			}
 			builder.resize(builder.size() - zero_count);
@@ -143,7 +144,7 @@ namespace nativa
 
 	nativa::string to_string(int64_t value, const nativa::string_view& style)
 	{
-		return to_string_impl::signed_integral(value, nativa::parse_signed_integral<int>(style));
+		return to_string_impl::signed_integral(value, nativa::parse_unsigned_integral<unsigned>(style));
 	}
 
 	nativa::string to_string(uint32_t value)
@@ -163,7 +164,7 @@ namespace nativa
 
 	nativa::string to_string(int32_t value, const nativa::string_view& style)
 	{
-		return to_string_impl::signed_integral(value, nativa::parse_signed_integral<int>(style));
+		return to_string_impl::signed_integral(value, nativa::parse_unsigned_integral<unsigned>(style));
 	}
 
 	nativa::string to_string(bool value)
@@ -186,6 +187,34 @@ namespace nativa
 	nativa::string to_string(float value)
 	{
 		return to_string_impl::float_point(value, 10, 6);
+	}
+
+	nativa::string to_string(double value, const nativa::string_view& style)
+	{
+		auto point = style.index_of('.');
+		auto s_size = style.size();
+		if (point == -1) point = s_size;
+		unsigned base = (point == 0)
+			? 10
+			: parse_unsigned_integral<unsigned>(style[{0, point}]);
+		unsigned precision = (point == s_size)
+			? 10
+			: parse_unsigned_integral<unsigned>(style[{point + 1, s_size}]);
+		return to_string_impl::float_point(value, base, precision);
+	}
+
+	nativa::string to_string(float value, const nativa::string_view& style)
+	{
+		auto point = style.index_of('.');
+		auto s_size = style.size();
+		if (point == -1) point = s_size;
+		unsigned base = (point == 0)
+			? 10
+			: parse_unsigned_integral<unsigned>(style[{0, point}]);
+		unsigned precision = (point == s_size)
+			? 6
+			: parse_unsigned_integral<unsigned>(style[{point + 1, s_size}]);
+		return to_string_impl::float_point(value, base, precision);
 	}
 
 	template <typename T>
