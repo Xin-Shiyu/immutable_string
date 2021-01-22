@@ -160,7 +160,6 @@ namespace nativa
 		}
 	}
 
-	template <>
 	inline void format_internal::fill_one(size_t index, const string_view& arg)
 	{
 		for (const format_guide& guide : guides[index])
