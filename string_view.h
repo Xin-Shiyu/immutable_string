@@ -2,7 +2,10 @@
 #ifndef NATIVA_STRING_VIEW
 #define NATIVA_STRING_VIEW
 
+#include <cstddef>
+#include <functional>
 #include <utility>
+
 namespace nativa
 {
 	class string;

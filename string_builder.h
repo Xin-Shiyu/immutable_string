@@ -2,6 +2,7 @@
 #ifndef NATIVA_STRING_BUILDER
 #define NATIVA_STRING_BUILDER
 
+#include <cstddef>
 #include <vector>
 #include "string.h"
 

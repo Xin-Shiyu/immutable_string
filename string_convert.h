@@ -2,8 +2,10 @@
 #ifndef NATIVA_STRING_CONVERT
 #define NATIVA_STRING_CONVERT
 
+#include <cstddef>
 #include <cstdint>
 #include <cassert>
+#include <algorithm>
 #include "string.h"
 #include "string_builder.h"
 

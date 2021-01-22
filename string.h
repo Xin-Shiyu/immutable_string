@@ -2,6 +2,7 @@
 #ifndef NATIVA_IMMUTABLE_STRING
 #define NATIVA_IMMUTABLE_STRING
 
+#include <cstddef>
 #include <initializer_list>
 #include <utility>
 #include "string_view.h"
@@ -92,6 +93,27 @@ namespace nativa
 		string(ref_counter_t* counter, const char* begin, const char* end) noexcept;
 	};
 
+	/// <summary>
+	/// Universal interface for allocation of nativa::string
+	/// The implementation should be consistent.
+	/// </summary>
+	struct string_internals
+	{
+		/// <summary>
+		/// Allocates a runtime string.
+		/// </summary>
+		/// <param name="length">Length of the string</param>
+		/// <param name="mutable_raw">An out param, mutable buffer of the string</param>
+		/// <returns>The ready-to-use string</returns>
+		static nativa::string alloc(size_t length, char*& mutable_raw);
+
+		/// <summary>
+		/// Frees the runtime string.
+		/// </summary>
+		/// <param name="disposed">The string to be disposed; move it as it should not be used again</param>
+		static void free(nativa::string&& disposed);
+	};
+
 #pragma region Template Function Impl
 
 	template <typename Enumerable>
@@ -176,27 +198,6 @@ namespace nativa
 	}
 
 #pragma endregion
-
-	/// <summary>
-	/// Universal interface for allocation of nativa::string
-	/// The implementation should be consistent.
-	/// </summary>
-	struct string_internals
-	{
-		/// <summary>
-		/// Allocates a runtime string.
-		/// </summary>
-		/// <param name="length">Length of the string</param>
-		/// <param name="mutable_raw">An out param, mutable buffer of the string</param>
-		/// <returns>The ready-to-use string</returns>
-		static nativa::string alloc(size_t length, char*& mutable_raw);
-
-		/// <summary>
-		/// Frees the runtime string.
-		/// </summary>
-		/// <param name="disposed">The string to be disposed; move it as it should not be used again</param>
-		static void free(nativa::string&& disposed);
-	};
 }
 
 #endif
