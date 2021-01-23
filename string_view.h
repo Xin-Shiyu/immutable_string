@@ -113,6 +113,9 @@ namespace nativa
 
 		nativa::string_view operator[](const std::pair<size_t, size_t>& range) const;
 
+		template <typename Encoding>
+		auto access_as() const;
+
 	protected:
 		const char* m_begin;
 		const char* m_end;
@@ -176,6 +179,12 @@ namespace nativa
 			if (it == m_end) break;
 			else ++it;
 		}
+	}
+
+	template <typename Encoding>
+	inline auto string_view::access_as() const
+	{
+		return typename Encoding::accessor(m_begin, m_end);
 	}
 
 	template <typename InsertIt>

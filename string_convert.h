@@ -104,7 +104,15 @@ namespace nativa
 			ptrdiff_t integral_part = static_cast<ptrdiff_t>(value);
 
 			fixed_string_builder<128> builder;
-			signed_integral_out_reversed(integral_part, base, builder);
+
+			if (integral_part == 0)
+			{
+				builder.append('0');
+			}
+			else
+			{
+				signed_integral_out_reversed(integral_part, base, builder);
+			}
 
 			std::reverse(builder.begin(), builder.end());
 
@@ -124,6 +132,7 @@ namespace nativa
 				builder.append(digit_char);
 			}
 			builder.resize(builder.size() - zero_count);
+			if (*(builder.end() - 1) == '.') builder.resize(builder.size() - 1);
 
 			return builder.to_string();
 		}
