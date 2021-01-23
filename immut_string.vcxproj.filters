@@ -44,5 +44,8 @@
     <ClInclude Include="format.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="utf8.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

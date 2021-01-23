@@ -150,6 +150,7 @@
     <ClInclude Include="string_builder.h" />
     <ClInclude Include="string_convert.h" />
     <ClInclude Include="string_view.h" />
+    <ClInclude Include="utf8.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
