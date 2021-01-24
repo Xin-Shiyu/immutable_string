@@ -54,10 +54,10 @@ namespace nativa
 		/// <typeparam name="Enumerable">An enumerable of strings</typeparam>
 		/// <param name="enumerable">The strings</param>
 		/// <returns>The new string</returns>
-		template <typename Enumerable = std::initializer_list<string>>
+		template <typename Enumerable = std::initializer_list<string_view>>
 		static string concat(const Enumerable& enumerable);
 
-		template <typename Enumerable = std::initializer_list<string>>
+		template <typename Enumerable = std::initializer_list<string_view>>
 		static string join(const string_view& delim, const Enumerable& enumerable);
 #pragma endregion
 

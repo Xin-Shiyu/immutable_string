@@ -37,52 +37,81 @@ namespace nativa
 		nativa::string float_point(T value, int base, int precision);
 	}
 
-	nativa::string to_string(nativa::string value)
+	template <typename T>
+	inline nativa::string to_string(T value)
+	{
+		auto type = typeid(T).name();
+		return 
+			nativa::string::concat({
+				"<",
+				nativa::string_view(
+					type,
+					nativa::c_str_end(type)),
+				">" });
+	}
+
+	template <typename T>
+	inline nativa::string to_string(T value, const nativa::string_view& style)
+	{
+		return to_string(value); // fallback impl
+	}
+
+	template<>
+	inline nativa::string to_string(nativa::string value)
 	{
 		return value;
 	}
 
-	nativa::string to_string(uint64_t value)
+	template<>
+	inline nativa::string to_string(uint64_t value)
 	{
 		return to_string_impl::unsigned_integral(value, 10);
 	}
 
-	nativa::string to_string(uint64_t value, const nativa::string_view& style)
+	template<>
+	inline nativa::string to_string(uint64_t value, const nativa::string_view& style)
 	{
 		return to_string_impl::unsigned_integral(value, nativa::parse_unsigned_integral<unsigned>(style));
 	}
 
-	nativa::string to_string(int64_t value)
+	template<>
+	inline nativa::string to_string(int64_t value)
 	{
 		return to_string_impl::signed_integral(value, 10);
 	}
 
-	nativa::string to_string(int64_t value, const nativa::string_view& style)
+	template<>
+	inline nativa::string to_string(int64_t value, const nativa::string_view& style)
 	{
 		return to_string_impl::signed_integral(value, nativa::parse_unsigned_integral<unsigned>(style));
 	}
 
-	nativa::string to_string(uint32_t value)
+	template<>
+	inline nativa::string to_string(uint32_t value)
 	{
 		return to_string_impl::unsigned_integral(value, 10);
 	}
 
-	nativa::string to_string(uint32_t value, const nativa::string_view& style)
+	template<>
+	inline nativa::string to_string(uint32_t value, const nativa::string_view& style)
 	{
 		return to_string_impl::unsigned_integral(value, nativa::parse_unsigned_integral<unsigned>(style));
 	}
 
-	nativa::string to_string(int32_t value)
+	template<>
+	inline nativa::string to_string(int32_t value)
 	{
 		return to_string_impl::signed_integral(value, 10);
 	}
 
-	nativa::string to_string(int32_t value, const nativa::string_view& style)
+	template<>
+	inline nativa::string to_string(int32_t value, const nativa::string_view& style)
 	{
 		return to_string_impl::signed_integral(value, nativa::parse_unsigned_integral<unsigned>(style));
 	}
 
-	nativa::string to_string(bool value)
+	template<>
+	inline nativa::string to_string(bool value)
 	{
 		if (value)
 		{
@@ -94,17 +123,20 @@ namespace nativa
 		}
 	}
 
-	nativa::string to_string(double value)
+	template<>
+	inline nativa::string to_string(double value)
 	{
 		return to_string_impl::float_point(value, 10, 10);
 	}
 
-	nativa::string to_string(float value)
+	template<>
+	inline nativa::string to_string(float value)
 	{
 		return to_string_impl::float_point(value, 10, 6);
 	}
 
-	nativa::string to_string(double value, const nativa::string_view& style)
+	template<>
+	inline nativa::string to_string(double value, const nativa::string_view& style)
 	{
 		auto point = style.index_of('.');
 		auto s_size = style.size();
@@ -118,7 +150,8 @@ namespace nativa
 		return to_string_impl::float_point(value, base, precision);
 	}
 
-	nativa::string to_string(float value, const nativa::string_view& style)
+	template<>
+	inline nativa::string to_string(float value, const nativa::string_view& style)
 	{
 		auto point = style.index_of('.');
 		auto s_size = style.size();
@@ -130,12 +163,6 @@ namespace nativa
 			? 6
 			: parse_unsigned_integral<unsigned>(style[{point + 1, s_size}]);
 		return to_string_impl::float_point(value, base, precision);
-	}
-
-	template <typename T>
-	nativa::string to_string(const T& value, const nativa::string_view& style)
-	{
-		return to_string(value); // fallback impl
 	}
 
 #pragma region Function Impl

@@ -10,6 +10,8 @@ namespace nativa
 {
 	class string;
 
+	constexpr const char* c_str_end(const char* c_str);
+
 	/// <summary>
 	/// A view to a char array without owning it
 	/// Designed to be the base of string
@@ -17,25 +19,12 @@ namespace nativa
 	/// </summary>
 	class string_view
 	{
-		constexpr static const char* c_str_end(const char* c_str)
-		{
-			auto it = c_str;
-			while (*it != '\0') ++it;
-			return it;
-		}
-
 	public:
 		// Create from string literals.
 		template <size_t N>
-		constexpr string_view(const char(&c_str)[N])
-			: m_begin(c_str), m_end(c_str + N - 1) // - 1 for the '\0'
-		{
-		}
+		constexpr string_view(const char(&c_str)[N]);
 
-		constexpr string_view()
-			: m_begin(""), m_end("" + 1)
-		{
-		}
+		constexpr string_view();
 
 		string_view(const char* begin, const char* end) noexcept;
 
@@ -86,13 +75,23 @@ namespace nativa
 		void split(char delim, InsertIt output) const;
 
 		/// <summary>
-		/// Creates a string owning a clone of the view
+		/// Creates a string owning a clone of the view.
 		/// </summary>
 		/// <returns>A string that owns a clone of the view</returns>
 		nativa::string clone() const;
 
+		/// <summary>
+		/// Creates a slice with given begin index and length.
+		/// </summary>
+		/// <param name="begin">The begin index of the slice</param>
+		/// <param name="length">The length of the slice</param>
+		/// <returns>The expected slice</returns>
 		nativa::string_view slice(size_t begin, size_t length) const;
 
+		/// <summary>
+		/// Copies the data of the string_view to a buffer
+		/// </summary>
+		/// <param name="buffer">A pointer to the buffer, make sure it has enough space</param>
 		void copy_to(char* buffer) const;
 
 		const char* begin() const;
@@ -111,10 +110,31 @@ namespace nativa
 
 		bool operator>(const string_view& right) const;
 
+		/// <summary>
+		/// Creates a slice from a certain index to a certain index exclusive.
+		/// </summary>
+		/// <param name="range">An std::pair representing the range, right exclusive</param>
+		/// <returns>The expected slice</returns>
 		nativa::string_view operator[](const std::pair<size_t, size_t>& range) const;
 
+		/// <summary>
+		/// Gets an enumerable treating the string as the given encoding
+		/// </summary>
+		/// <typeparam name="Encoding">A type with at least one member type called accessor</typeparam>
+		/// <returns>An enumerable of a certain type of char</returns>
 		template <typename Encoding>
 		auto access_as() const;
+
+		template <typename Encoding>
+		size_t length() const;
+
+		bool is_empty() const;
+
+		bool starts_with(const string_view& pattern) const;
+
+		bool ends_with(const string_view& pattern) const;
+
+		bool contains(const string_view& pattern) const;
 
 	protected:
 		const char* m_begin;
@@ -149,6 +169,24 @@ namespace nativa
 			return cloned_iterator(it);
 		}
 	};
+
+	constexpr const char* c_str_end(const char* c_str)
+	{
+		auto it = c_str;
+		while (*it != '\0') ++it;
+		return it;
+	}
+
+	template <size_t N>
+	inline constexpr string_view::string_view(const char(&c_str)[N])
+		: m_begin(c_str), m_end(c_str + N - 1) // - 1 for the '\0'
+	{
+	}
+
+	inline constexpr string_view::string_view()
+		: m_begin(""), m_end("" + 1)
+	{
+	}
 
 	template <typename InsertIt>
 	inline void string_view::split(const string_view& delim, InsertIt output) const
@@ -185,6 +223,14 @@ namespace nativa
 	inline auto string_view::access_as() const
 	{
 		return typename Encoding::accessor(m_begin, m_end);
+	}
+
+	template <typename Encoding>
+	inline size_t string_view::length() const
+	{
+		size_t res = 0;
+		for (const auto& c : this->access_as<Encoding>()) ++res;
+		return res;
 	}
 
 	template <typename InsertIt>

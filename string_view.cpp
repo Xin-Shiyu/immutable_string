@@ -131,6 +131,31 @@ namespace nativa
 		return string_view(m_begin + range.first, m_begin + range.second);
 	}
 
+	bool string_view::is_empty() const
+	{
+		return size() == 0;
+	}
+
+	bool string_view::starts_with(const string_view& pattern) const
+	{
+		size_t p_size = pattern.size();
+		if (p_size > this->size()) return false;
+		return this->slice(0, p_size) == pattern;
+	}
+
+	bool string_view::ends_with(const string_view& pattern) const
+	{
+		size_t m_size = this->size();
+		size_t p_size = pattern.size();
+		if (p_size > m_size) return false;
+		return this->slice(m_size - p_size, p_size) == pattern;
+	}
+
+	bool string_view::contains(const string_view& pattern) const
+	{
+		return find(pattern, m_begin) != m_end;
+	}
+
 	string_view::string_view(const char* begin, const char* end) noexcept
 		: m_begin(begin), m_end(end)
 	{
@@ -138,18 +163,24 @@ namespace nativa
 
 	const char* string_view::find_last(char target, const char* before) const
 	{
+		assert(before != nullptr);
+
 		while (before >= m_begin && target != *before) --before;
 		return before;
 	}
 
 	const char* string_view::find(const char target, const char* since) const
 	{
+		assert(since != nullptr);
+
 		while (since != m_end && target != *since) ++since;
 		return since;
 	}
 
 	const char* string_view::find(const string_view& target, const char* since) const
 	{
+		assert(since != nullptr);
+
 		// TO-DO: optimize
 		auto end = m_end - target.size();
 		for (auto m_it = since; m_it <= end; ++m_it)
