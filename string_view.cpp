@@ -1,7 +1,7 @@
 #include <cassert>
+#include <algorithm>
 #include "string_view.h"
 #include "string.h"  // implementation of string_view::clone relies on this
-#include <algorithm>
 
 namespace nativa
 {

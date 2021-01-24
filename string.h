@@ -18,7 +18,7 @@ namespace nativa
 	/// Should be easily copied.
 	/// Passing by ref means temporary borrowing.
 	/// </summary>
-	class string : public string_view
+	class string : public nativa::string_view
 	{
 		friend struct string_internals;
 
