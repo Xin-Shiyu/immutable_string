@@ -39,71 +39,101 @@ namespace nativa
 	class fixed_string_builder
 	{
 	public:
-		fixed_string_builder()
-		{
-			m_end = m_buffer;
-		}
+		fixed_string_builder();
 
-		fixed_string_builder& append(const string_view& str)
-		{
-			assert(str.size() + this->size() <= Capacity);
+		fixed_string_builder& append(const string_view& str);
 
-			str.copy_to(grow(str.size()));
+		fixed_string_builder& append(char c);
 
-			return *this;
-		}
+		size_t size() const;
 
-		fixed_string_builder& append(char c)
-		{
-			*grow(1) = c;
+		void resize(size_t size);
 
-			return *this;
-		}
+		char* begin();
 
-		size_t size() const
-		{
-			return m_end - m_buffer;
-		}
+		char* end();
 
-		void resize(size_t size)
-		{
-			m_end = m_buffer + size;
-		}
-
-		char* begin()
-		{
-			return m_buffer;
-		}
-
-		char* end()
-		{
-			return m_end;
-		}
-
-		nativa::string to_string()
-		{
-			char* buffer;
-			auto res = string_internals::alloc(this->size(), buffer);
-			string_view(m_buffer, m_end).copy_to(buffer);
-			return std::move(res);
-		}
+		nativa::string to_string() const;
 
 	private:
 		char m_buffer[Capacity];
 
 		char* m_end;
 
-		char* grow(size_t size)
-		{
-			assert(this->size() + size <= Capacity);
-
-			auto old = m_end;
-
-			m_end += size;
-			
-			return old;
-		}
+		char* grow(size_t size);
 	};
+
+#pragma region Template Function Impl
+	template <size_t Capacity>
+	inline fixed_string_builder<Capacity>::fixed_string_builder()
+	{
+		m_end = m_buffer;
+	}
+
+	template <size_t Capacity>
+	inline fixed_string_builder<Capacity>& fixed_string_builder<Capacity>::append(const string_view& str)
+	{
+		assert(str.size() + this->size() <= Capacity);
+
+		str.copy_to(grow(str.size()));
+
+		return *this;
+	}
+
+	template <size_t Capacity>
+	inline fixed_string_builder<Capacity>& fixed_string_builder<Capacity>::append(char c)
+	{
+		*grow(1) = c;
+
+		return *this;
+	}
+
+	template <size_t Capacity>
+	inline size_t fixed_string_builder<Capacity>::size() const
+	{
+		return m_end - m_buffer;
+	}
+
+	template <size_t Capacity>
+	inline void fixed_string_builder<Capacity>::resize(size_t size)
+	{
+		m_end = m_buffer + size;
+	}
+
+	template <size_t Capacity>
+	inline char* fixed_string_builder<Capacity>::begin()
+	{
+		return m_buffer;
+	}
+
+	template <size_t Capacity>
+	inline char* fixed_string_builder<Capacity>::end()
+	{
+		return m_end;
+	}
+
+	template <size_t Capacity>
+	inline nativa::string fixed_string_builder<Capacity>::to_string() const
+	{
+		char* buffer;
+		auto res = string_internals::alloc(this->size(), buffer);
+		string_view(m_buffer, m_end).copy_to(buffer);
+		return std::move(res);
+	}
+
+	template <size_t Capacity>
+	inline char* fixed_string_builder<Capacity>::grow(size_t size)
+	{
+		assert(this->size() + size <= Capacity);
+
+		auto old = m_end;
+
+		m_end += size;
+		
+		return old;
+	}
+#pragma endregion
+
 }
 
 #endif

@@ -12,130 +12,34 @@
 namespace nativa
 {
 	template <typename T>
-	T parse_unsigned_integral(const nativa::string_view& str)
-	{
-		T res = 0;
-		for (auto c : str)
-		{
-			assert('0' <= c && c <= '9');
-			res *= 10;
-			res += static_cast<size_t>(c) - '0';
-		}
-		return res;
-	}
+	T parse_unsigned_integral(const nativa::string_view& str);
 
 	template <typename T>
-	T parse_signed_integral(const nativa::string_view& str)
-	{
-		using Unsigned = typename std::make_unsigned<T>::type;
-		return str.begin()[0] == '-'
-			? -static_cast<T>(parse_unsigned_integral<Unsigned>(str[{1, str.size()}]))
-			: parse_unsigned_integral<Unsigned>(str);
-	}
-
-	nativa::string to_string(const string& value)
-	{
-		return value;
-	}
+	T parse_signed_integral(const nativa::string_view& str);
 
 	namespace to_string_impl
 	{
 		const char* const number_map = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 		template <typename T, size_t BuilderLen>
-		void unsigned_integral_out_reversed(T value, unsigned base, fixed_string_builder<BuilderLen>& builder)
-		{
-			while (value != 0)
-			{
-				builder.append(number_map[value % base]);
-				value /= base;
-			}
-		}
+		void unsigned_integral_out_reversed(T value, unsigned base, fixed_string_builder<BuilderLen>& builder);
 
 		template <typename T, size_t BuilderLen>
-		void signed_integral_out_reversed(T value, unsigned base, fixed_string_builder<BuilderLen>& builder)
-		{
-			using Unsigned = typename std::make_unsigned<T>::type;
-
-			if (value > 0)
-			{
-				unsigned_integral_out_reversed(static_cast<Unsigned>(value), base, builder);
-			}
-			else
-			{
-				unsigned_integral_out_reversed(static_cast<Unsigned>(-value), base, builder);
-				builder.append('-');
-			}
-		}
+		void signed_integral_out_reversed(T value, unsigned base, fixed_string_builder<BuilderLen>& builder);
 
 		template <typename T>
-		nativa::string unsigned_integral(T value, unsigned base)
-		{
-			assert(2 <= base && base <= 36);
-			if (value == 0) return "0";
-
-			fixed_string_builder<128> builder;
-			unsigned_integral_out_reversed(value, base, builder);
-			std::reverse(builder.begin(), builder.end());
-
-			return builder.to_string();
-		}
+		nativa::string unsigned_integral(T value, unsigned base);
 
 		template <typename T>
-		nativa::string signed_integral(T value, unsigned base)
-		{
-			assert(2 <= base && base <= 36);
-			if (value == 0) return "0";
-
-			fixed_string_builder<128> builder;
-			signed_integral_out_reversed(value, base, builder);
-
-			std::reverse(builder.begin(), builder.end());
-
-			return builder.to_string();
-		}
+		nativa::string signed_integral(T value, unsigned base);
 
 		template <typename T>
-		nativa::string float_point(T value, int base, int precision)
-		{
-			// TO-DO: rewrite
-			assert(2 <= base && base <= 36);
+		nativa::string float_point(T value, int base, int precision);
+	}
 
-			ptrdiff_t integral_part = static_cast<ptrdiff_t>(value);
-
-			fixed_string_builder<128> builder;
-
-			if (integral_part == 0)
-			{
-				builder.append('0');
-			}
-			else
-			{
-				signed_integral_out_reversed(integral_part, base, builder);
-			}
-
-			std::reverse(builder.begin(), builder.end());
-
-			builder.append('.');
-			if (value < 0) value = -value;
-			const int max_precision = 100 / base; // I wrote this for no reason
-			if (precision > max_precision) precision = max_precision;
-			int zero_count = 0;
-			for (int i = 0; i < precision; ++i)
-			{
-				value *= base;
-				size_t digit = static_cast<size_t>(value) % base;
-				if (digit == 0) zero_count += 1;
-				else zero_count = 0;
-				assert(0 <= digit && digit <= base);
-				char digit_char = static_cast<char>(number_map[digit]);
-				builder.append(digit_char);
-			}
-			builder.resize(builder.size() - zero_count);
-			if (*(builder.end() - 1) == '.') builder.resize(builder.size() - 1);
-
-			return builder.to_string();
-		}
+	nativa::string to_string(nativa::string value)
+	{
+		return value;
 	}
 
 	nativa::string to_string(uint64_t value)
@@ -233,6 +137,126 @@ namespace nativa
 	{
 		return to_string(value); // fallback impl
 	}
+
+#pragma region Function Impl
+	template <typename T>
+	inline T parse_unsigned_integral(const nativa::string_view& str)
+	{
+		T res = 0;
+		for (auto c : str)
+		{
+			assert('0' <= c && c <= '9');
+			res *= 10;
+			res += static_cast<size_t>(c) - '0';
+		}
+		return res;
+	}
+
+	template <typename T>
+	inline T parse_signed_integral(const nativa::string_view& str)
+	{
+		using Unsigned = typename std::make_unsigned<T>::type;
+		return str.begin()[0] == '-'
+			? -static_cast<T>(parse_unsigned_integral<Unsigned>(str[{1, str.size()}]))
+			: parse_unsigned_integral<Unsigned>(str);
+	}
+
+	template <typename T, size_t BuilderLen>
+	inline void to_string_impl::unsigned_integral_out_reversed(T value, unsigned base, fixed_string_builder<BuilderLen>& builder)
+	{
+		while (value != 0)
+		{
+			builder.append(number_map[value % base]);
+			value /= base;
+		}
+	}
+
+	template <typename T, size_t BuilderLen>
+	inline void to_string_impl::signed_integral_out_reversed(T value, unsigned base, fixed_string_builder<BuilderLen>& builder)
+	{
+		using Unsigned = typename std::make_unsigned<T>::type;
+
+		if (value > 0)
+		{
+			unsigned_integral_out_reversed(static_cast<Unsigned>(value), base, builder);
+		}
+		else
+		{
+			unsigned_integral_out_reversed(static_cast<Unsigned>(-value), base, builder);
+			builder.append('-');
+		}
+	}
+
+	template <typename T>
+	inline nativa::string to_string_impl::unsigned_integral(T value, unsigned base)
+	{
+		assert(2 <= base && base <= 36);
+		if (value == 0) return "0";
+
+		fixed_string_builder<128> builder;
+		unsigned_integral_out_reversed(value, base, builder);
+		std::reverse(builder.begin(), builder.end());
+
+		return builder.to_string();
+	}
+
+	template <typename T>
+	nativa::string to_string_impl::signed_integral(T value, unsigned base)
+	{
+		assert(2 <= base && base <= 36);
+		if (value == 0) return "0";
+
+		fixed_string_builder<128> builder;
+		signed_integral_out_reversed(value, base, builder);
+
+		std::reverse(builder.begin(), builder.end());
+
+		return builder.to_string();
+	}
+
+	template <typename T>
+	nativa::string to_string_impl::float_point(T value, int base, int precision)
+	{
+		// TO-DO: rewrite
+		assert(2 <= base && base <= 36);
+
+		ptrdiff_t integral_part = static_cast<ptrdiff_t>(value);
+
+		fixed_string_builder<128> builder;
+
+		if (integral_part == 0)
+		{
+			builder.append('0');
+		}
+		else
+		{
+			signed_integral_out_reversed(integral_part, base, builder);
+		}
+
+		std::reverse(builder.begin(), builder.end());
+
+		builder.append('.');
+		if (value < 0) value = -value;
+		const int max_precision = 100 / base; // I wrote this for no reason
+		if (precision > max_precision) precision = max_precision;
+		int zero_count = 0;
+		for (int i = 0; i < precision; ++i)
+		{
+			value *= base;
+			size_t digit = static_cast<size_t>(value) % base;
+			if (digit == 0) zero_count += 1;
+			else zero_count = 0;
+			assert(0 <= digit && digit <= base);
+			char digit_char = static_cast<char>(number_map[digit]);
+			builder.append(digit_char);
+		}
+		builder.resize(builder.size() - zero_count);
+		if (*(builder.end() - 1) == '.') builder.resize(builder.size() - 1);
+
+		return builder.to_string();
+	}
+
+#pragma endregion
 }
 
 #endif

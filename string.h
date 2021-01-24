@@ -26,15 +26,9 @@ namespace nativa
 
 		// Create from string literals.
 		template <size_t N>
-		constexpr string(const char(&c_str)[N])
-			: m_counter(nullptr), string_view(c_str)
-		{
-		}
+		constexpr string(const char(&c_str)[N]);
 		
-		constexpr string()
-			: m_counter(nullptr), string_view()
-		{
-		}
+		constexpr string();
 		
 		// Copy ctor.
 		// Increases ref count
@@ -114,7 +108,18 @@ namespace nativa
 		static void free(nativa::string&& disposed);
 	};
 
-#pragma region Template Function Impl
+#pragma region Template and Constexpr Function Impl
+
+	template <size_t N>
+	constexpr inline string::string(const char(&c_str)[N])
+		: m_counter(nullptr), string_view(c_str)
+	{
+	}
+
+	constexpr inline string::string()
+			: m_counter(nullptr), string_view()
+	{
+	}
 
 	template <typename Enumerable>
 	inline string string::concat(const Enumerable& enumerable)
