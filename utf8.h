@@ -12,6 +12,8 @@ namespace nativa
 	{
 		struct utf8
 		{
+			utf8() = delete;
+
 			class access_iterator
 			{
 			private:
