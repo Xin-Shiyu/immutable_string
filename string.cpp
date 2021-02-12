@@ -12,13 +12,13 @@ namespace nativa
 		// [ counter ] [ string ] [ \0 ]
 		assert(length > 0);
 
-		size_t buffer_len = alignof(ref_counter_t) + length + 1;
+		size_t buffer_len = sizeof(ref_counter_t) + length + 1;
 		char* buffer = new char[buffer_len];
 
 		ref_counter_t* counter = reinterpret_cast<ref_counter_t*>(buffer);
 		*counter = 1;
 
-		mutable_raw = buffer + alignof(ref_counter_t);
+		mutable_raw = buffer + sizeof(ref_counter_t);
 
 		char* end = mutable_raw + length;
 		*end = '\0';

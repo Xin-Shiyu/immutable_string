@@ -29,6 +29,8 @@ namespace nativa
 
 		nativa::string to_string();
 
+		std::back_insert_iterator<std::vector<char>> back_inserter();
+
 	private:
 		std::vector<char> m_buffer;
 
@@ -115,6 +117,7 @@ namespace nativa
 	template <size_t Capacity>
 	inline nativa::string fixed_string_builder<Capacity>::to_string() const
 	{
+		if (m_end == m_buffer) return "";
 		char* buffer;
 		auto res = string_internals::alloc(this->size(), buffer);
 		string_view(m_buffer, m_end).copy_to(buffer);

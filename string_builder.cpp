@@ -46,6 +46,7 @@ namespace nativa
 
 	string string_builder::to_string()
 	{
+		if (m_buffer.empty()) return "";
 		char* mutable_raw;
 		string res = string_internals::alloc(m_buffer.size(), mutable_raw);
 		string_view(&m_buffer[0], &m_buffer[0] + m_buffer.size()).copy_to(mutable_raw);
@@ -57,5 +58,10 @@ namespace nativa
 		m_buffer.resize(m_buffer.size() + size);
 		return &m_buffer[0] + m_buffer.size() - size;
 		// You cannot dereference the end iterator
+	}
+
+	std::back_insert_iterator<std::vector<char>> string_builder::back_inserter()
+	{
+		return std::back_inserter(m_buffer);
 	}
 }
