@@ -19,6 +19,7 @@ Tools about strings
     - Basic implementation for a string formatter with .NET-like syntax
   - nativa::encoding::utf8
     - Provides an iterator and a wrapper-container to access a string's chars as if it was encoded in UTF-8
+    - Provides a function to encode a char32_t into UTF-8
   - nativa::string_builder and nativa::fixed_string_builder
     - As their name implies. The fixed one uses the stack memory and is thus a little bit faster.
 
