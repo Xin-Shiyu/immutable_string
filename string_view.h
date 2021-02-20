@@ -110,6 +110,11 @@ namespace nativa
 
 		bool operator>(const string_view& right) const;
 
+		bool operator!=(const string_view& right) const
+		{
+			return !this->operator==(right);
+		}
+
 		/// <summary>
 		/// Creates a slice from a certain index to a certain index exclusive.
 		/// </summary>
