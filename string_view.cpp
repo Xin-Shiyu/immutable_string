@@ -75,7 +75,7 @@ namespace nativa
 	nativa::string_view string_view::slice(size_t begin, size_t length) const
 	{
 		assert(m_begin + begin + length <= m_end);
-		return nativa::string_view(m_begin + begin, m_begin + length);
+		return nativa::string_view(m_begin + begin, m_begin + begin + length);
 	}
 
 	void string_view::copy_to(char* buffer) const
